@@ -1,0 +1,15 @@
+/* Confirmed design colors for the colleague-facing demo. */
+.history-panel .history-foot { display:none; }
+#stepOneBtn.available { background:#e8f8f0; border-color:#d3eddf; color:#159767; }
+#stepOneBtn.current { background:#12ba8b; border-color:#12ba8b; color:#fff; }
+#stepTwoBtn.available { background:#eaf2ff; border-color:#dbeafe; color:#3b72ca; }
+#stepTwoBtn.current { background:#2563eb; border-color:#2563eb; color:#fff; }
+#stepOneBtn.current .step-index, #stepTwoBtn.current .step-index { background:#ffffff30; color:#fff; }
+#stepOneBtn.available .step-index { background:#d2efdf; color:#159767; }
+#stepTwoBtn.available .step-index { background:#dbeafe; color:#2563eb; }
+#topAction.btn-purple, #reanalyzeBtn { background:#23c568; color:#fff; box-shadow:none; }
+#topAction.btn-purple:hover, #reanalyzeBtn:hover { background:#1bae5b; }
+#topAction.btn-primary, .upload-enabled > #nextAi { background:#2563eb; color:#fff; box-shadow:none; }
+#topAction.btn-primary:hover, .upload-enabled > #nextAi:hover { background:#1d4ed8; }
+.upload-options button:hover, .upload-options button:focus { background:#eff6ff; color:#2563eb; }
+.steps, .stepper { background:#f6f8fa; }

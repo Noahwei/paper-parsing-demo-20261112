@@ -1,0 +1,1966 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="data:," />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>试卷智能化解析 · 教师工作台</title>
+  <script src="assets/vendor/lucide.min.js"></script>
+  <script>window.lucide || document.write('<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"><\/script>');</script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: #1f2937;
+      background: #eef1f4;
+      overflow: hidden;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .app { height: 100vh; width: 100vw; overflow: hidden; }
+    .hidden { display: none !important; }
+    .icon { width: 16px; height: 16px; stroke-width: 2.2; }
+    .icon-sm { width: 14px; height: 14px; }
+    .icon-lg { width: 42px; height: 42px; }
+    .btn {
+      border: 0;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: .18s ease;
+      white-space: nowrap;
+    }
+    .btn-primary { color: #fff; background: #22c55e; box-shadow: 0 6px 14px rgba(34,197,94,.22); }
+    .btn-primary:hover { background: #16a34a; transform: translateY(-1px); }
+    .btn-purple { color: #fff; background: #8b5cf6; box-shadow: 0 6px 14px rgba(139,92,246,.22); }
+    .btn-purple:hover { background: #7c3aed; transform: translateY(-1px); }
+    .btn-ghost { color: #64748b; background: #fff; border: 1px solid #e2e8f0; }
+    .btn-ghost:hover { color: #16a34a; border-color: #86efac; background: #f0fdf4; }
+    .btn-danger { color: #ef4444; background: #fff1f2; border: 1px solid #fecdd3; }
+    .btn-danger:hover { background: #ffe4e6; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .pill-green { color: #16a34a; background: #dcfce7; border: 1px solid #86efac; }
+    .pill-yellow { color: #d97706; background: #fffbeb; border: 1px solid #fde68a; }
+    .pill-purple { color: #7c3aed; background: #f3e8ff; border: 1px solid #ddd6fe; }
+    .page-upload {
+      height: 100%;
+      background: #eef1f4;
+      position: relative;
+      overflow: hidden;
+    }
+    .history-trigger {
+      position: absolute;
+      top: 34px;
+      right: 40px;
+      z-index: 6;
+      height: 32px;
+      padding: 0 14px;
+      border: 0;
+      border-radius: 999px;
+      color: #12b76a;
+      background: #fff;
+      box-shadow: 0 4px 14px rgba(15,23,42,.08);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .back-btn {
+      height: 32px;
+      border: 0;
+      border-radius: 999px;
+      background: #fff;
+      color: #64748b;
+      box-shadow: 0 4px 14px rgba(15,23,42,.08);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 13px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .upload-back {
+      position: absolute;
+      top: 34px;
+      left: 40px;
+      z-index: 6;
+    }
+    .upload-stage {
+      height: 100%;
+      display: grid;
+      place-items: center;
+      padding: 34px;
+      transition: transform .25s ease, filter .25s ease;
+    }
+    .history-open .upload-stage { transform: translateX(-155px); filter: brightness(.94); }
+    .upload-card {
+      width: min(640px, calc(100vw - 48px));
+      min-height: 500px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      box-shadow: 0 4px 10px rgba(15,23,42,.06), 0 20px 44px rgba(15,23,42,.05);
+      padding: 54px 62px 44px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .upload-mark {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: #d1fae5;
+      color: #22c55e;
+      display: grid;
+      place-items: center;
+      margin-bottom: 26px;
+    }
+    .upload-card h1 {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: 0;
+      color: #111827;
+    }
+    .subtitle {
+      margin: 18px 0 28px;
+      color: #a1a1aa;
+      font-size: 15px;
+    }
+    .form-block { width: 100%; }
+    .block-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 18px 0 12px;
+      color: #111827;
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .block-title .icon { color: #22c55e; }
+    .select-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .select-row select, .history-panel input, .history-panel select {
+      width: 100%;
+      height: 38px;
+      border: 1px solid #dcdfe6;
+      border-radius: 5px;
+      background: #fff;
+      padding: 0 12px;
+      color: #111827;
+      font-size: 13px;
+      outline: 0;
+    }
+    .drop-zone {
+      width: 100%;
+      min-height: 136px;
+      border: 2px dashed #cfd6dd;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
+      background: #fff;
+      transition: .18s ease;
+      text-align: center;
+      padding: 24px;
+    }
+    .drop-zone.is-drag, .drop-zone:hover { border-color: #22c55e; background: #ecfdf5; }
+    .drop-zone strong { color: #111827; font-size: 15px; }
+    .drop-zone p { margin: 0; color: #a1a1aa; font-size: 12px; }
+    .file-confirm {
+      width: 100%;
+      border: 2px solid #22c55e;
+      background: #effdf5;
+      border-radius: 12px;
+      padding: 14px;
+      display: none;
+    }
+    .file-confirm.show { display: block; }
+    .confirm-title {
+      color: #059669;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    .file-list { display: flex; flex-direction: column; gap: 8px; max-height: 150px; overflow: auto; }
+    .file-item {
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      font-size: 12px;
+    }
+    .file-item .file-name { flex: 1; min-width: 0; }
+    .file-title { color: #374151; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-size { color: #9ca3af; margin-top: 2px; }
+    .file-actions {
+      margin-top: 16px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .add-image-btn {
+      border: 1px solid #22c55e;
+      color: #16a34a;
+      background: #fff;
+      border-radius: 6px;
+      padding: 9px 13px;
+      font-size: 12px;
+      font-weight: 800;
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      margin-right: auto;
+    }
+    .parse-progress { width: 100%; margin-top: 12px; display: none; }
+    .parse-progress.show { display: block; }
+    .is-parsing .block-title,
+    .is-parsing .select-row,
+    .is-parsing #dropZone,
+    .is-parsing #fileConfirm { display: none !important; }
+    .is-parsing .parse-progress { margin-top: 6px; }
+    .is-parsing .upload-card {
+      width: min(620px, calc(100vw - 48px));
+      min-height: 430px;
+      justify-content: center;
+    }
+    .course-strip {
+      border: 1px solid #22c55e;
+      background: #eafff2;
+      color: #16a34a;
+      border-radius: 5px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 24px;
+    }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      color: #475569;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+    .bar {
+      height: 12px;
+      border-radius: 999px;
+      background: #edf1f5;
+      overflow: hidden;
+    }
+    .bar span { display: block; height: 100%; width: 0; border-radius: inherit; background: #22c55e; transition: width .25s ease; }
+    .parse-steps {
+      margin-top: 28px;
+      display: flex;
+      justify-content: center;
+      gap: 38px;
+      color: #94a3b8;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .parse-steps div { display: flex; align-items: center; gap: 7px; }
+    .parse-steps .done { color: #22c55e; }
+    .history-panel {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+      width: 370px;
+      background: #fff;
+      border-left: 1px solid #e5e7eb;
+      box-shadow: -16px 0 40px rgba(15,23,42,.1);
+      transform: translateX(100%);
+      transition: transform .25s ease;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+    }
+    .history-open .history-panel { transform: translateX(0); }
+    .history-head {
+      height: 74px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .history-head h3 { margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+    .history-filter {
+      padding: 18px 24px;
+      display: grid;
+      grid-template-columns: 1fr 118px;
+      gap: 10px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .history-list { padding: 16px 24px; overflow: auto; flex: 1; }
+    .history-item {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      min-height: 72px;
+      border: 1px solid #eef2f7;
+      border-radius: 13px;
+      padding: 11px 12px;
+      margin-bottom: 14px;
+      background: #fff;
+    }
+    .history-item.active { border-color: #fecaca; box-shadow: 0 0 0 2px #fff1f2 inset; }
+    .history-file-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      color: #94a3b8;
+      background: #f1f5f9;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+    }
+    .history-copy { flex: 1; min-width: 0; }
+    .history-copy strong { display: block; font-size: 12px; color: #334155; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .history-copy span { display: block; color: #94a3b8; font-size: 11px; margin-top: 3px; }
+    .history-foot {
+      height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      color: #94a3b8;
+      font-size: 12px;
+    }
+    .workbench { height: 100%; display: flex; flex-direction: column; background: #f1f5f9; }
+    .topbar {
+      height: 58px;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 22px;
+      flex: 0 0 auto;
+      box-shadow: 0 2px 8px rgba(15,23,42,.04);
+      z-index: 3;
+    }
+    .doc-brand { display: flex; align-items: center; gap: 12px; min-width: 260px; }
+    .top-left { display: flex; align-items: center; gap: 12px; min-width: 360px; }
+    .doc-icon {
+      width: 34px;
+      height: 34px;
+      background: #10b981;
+      color: #fff;
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+    }
+    .doc-brand strong { display: block; font-size: 14px; color: #111827; }
+    .doc-brand span { display: block; font-size: 11px; color: #94a3b8; margin-top: 2px; }
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f3f4f6;
+      border-radius: 999px;
+      padding: 4px;
+    }
+    .step-tab {
+      height: 30px;
+      border: 0;
+      border-radius: 999px;
+      padding: 0 16px;
+      background: transparent;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .step-tab.active-green { color: #fff; background: #10b981; }
+    .step-tab.active-purple { color: #fff; background: #8b5cf6; }
+    .step-index {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.24);
+      font-size: 10px;
+    }
+    .panel { flex: 1; min-height: 0; display: flex; overflow: hidden; }
+    .paper-pane {
+      width: 390px;
+      background: #e5e8ec;
+      border-right: 1px solid #d7dde5;
+      display: flex;
+      flex-direction: column;
+      flex: 0 0 auto;
+    }
+    .paper-tabs {
+      height: 42px;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 18px;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .paper-preview {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 28px 18px;
+      overflow: auto;
+    }
+    .mock-paper {
+      width: 330px;
+      min-height: 520px;
+      background: #fff;
+      box-shadow: 0 5px 18px rgba(15,23,42,.12);
+      padding: 38px 28px;
+      color: #111827;
+      position: relative;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 10px;
+      line-height: 1.55;
+    }
+    .corner {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-color: #d1d5db;
+      border-style: solid;
+    }
+    .corner.tl { top: 24px; left: 24px; border-width: 1px 0 0 1px; }
+    .corner.tr { top: 24px; right: 24px; border-width: 1px 1px 0 0; }
+    .corner.bl { bottom: 24px; left: 24px; border-width: 0 0 1px 1px; }
+    .corner.br { bottom: 24px; right: 24px; border-width: 0 1px 1px 0; }
+    .mock-paper h4 { margin: 0 0 10px; text-align: center; font-size: 12px; }
+    .scan-card {
+      border: 2px solid transparent;
+      border-radius: 4px;
+      padding: 6px 8px;
+      margin: 8px 0;
+      cursor: pointer;
+    }
+    .scan-card.active { border-color: #22c55e; background: #dcfce7; }
+    .scan-grid {
+      width: 70px;
+      height: 54px;
+      border: 1px solid #888;
+      margin: 8px auto 2px;
+      background:
+        linear-gradient(#bbb 1px, transparent 1px) 0 0/14px 14px,
+        linear-gradient(90deg, #bbb 1px, transparent 1px) 0 0/14px 14px;
+    }
+    .bottom-tools {
+      position: absolute;
+      left: 46px;
+      bottom: 34px;
+      height: 42px;
+      border-radius: 999px;
+      background: #111827;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 15px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 10px 25px rgba(15,23,42,.22);
+    }
+    .bottom-tools button {
+      border: 0;
+      background: transparent;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .verify-main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: #f8fafc;
+    }
+    .question-nav {
+      height: 46px;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      flex: 0 0 auto;
+    }
+    .q-dots { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #64748b; font-weight: 800; }
+    .q-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 1px solid #fbbf24;
+      color: #d97706;
+      background: #fffbeb;
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .q-dot.done { border-color: #22c55e; color: #16a34a; background: #f0fdf4; }
+    .q-dot.saved { border-color: #22c55e; color: #16a34a; background: #f0fdf4; }
+    .q-dot.active { border-color: #10b981; color: #fff; background: #10b981; }
+    .cards-scroll {
+      flex: 1;
+      overflow: auto;
+      padding: 26px 34px 34px;
+    }
+    .question-card {
+      max-width: 780px;
+      margin: 0 auto 24px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 22px;
+      box-shadow: 0 2px 8px rgba(15,23,42,.04);
+    }
+    .question-card.active { border-color: #10b981; box-shadow: 0 0 0 1px #10b981 inset; }
+    .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .card-title { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 900; }
+    .card-actions { display: flex; gap: 8px; align-items: center; }
+    .segment { display: flex; gap: 8px; }
+    .seg {
+      min-width: 74px;
+      height: 30px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      background: #fff;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .seg.active { background: #10b981; color: #fff; border-color: #10b981; }
+    .field-label { display: block; color: #64748b; font-size: 12px; font-weight: 800; margin: 14px 0 8px; }
+    .toolbar {
+      height: 34px;
+      border: 1px solid #cbd5e1;
+      border-bottom: 0;
+      border-radius: 6px 6px 0 0;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 0 12px;
+      color: #64748b;
+    }
+    .toolbar button {
+      border: 0;
+      background: transparent;
+      color: inherit;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+    }
+    .image-picker {
+      margin-top: 8px;
+      border: 1px solid #d8f3e2;
+      background: #f0fdf4;
+      border-radius: 8px;
+      padding: 10px;
+      display: none;
+    }
+    .image-picker.show { display: block; }
+    .image-picker-title { color: #16a34a; font-size: 12px; font-weight: 900; margin-bottom: 8px; }
+    .image-grid { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 2px; }
+    .image-tile {
+      width: 112px;
+      height: 76px;
+      border: 1px solid #bbf7d0;
+      background: #fff;
+      border-radius: 7px;
+      overflow: hidden;
+      flex: 0 0 auto;
+      cursor: pointer;
+    }
+    .image-thumb {
+      height: 52px;
+      background: #e2e8f0;
+      display: grid;
+      place-items: center;
+      color: #64748b;
+    }
+    .image-name { height: 24px; line-height: 24px; padding: 0 7px; color: #475569; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .attached-images { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .attached-chip { border: 1px solid #bbf7d0; background: #f0fdf4; color: #16a34a; border-radius: 5px; padding: 5px 8px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; gap: 5px; }
+    .multi-question-box {
+      margin-top: 12px;
+      border: 1px solid #dbeafe;
+      background: #f8fbff;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .multi-tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+    .multi-tab {
+      border: 1px solid #e9d5ff;
+      color: #7c3aed;
+      background: #faf5ff;
+      border-radius: 4px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .multi-tab.active { color: #fff; background: #8b5cf6; border-color: #8b5cf6; }
+    .multi-note { color: #64748b; font-size: 12px; line-height: 1.6; }
+    
+    textarea.editor {
+      width: 100%;
+      min-height: 130px;
+      border: 1px solid #cbd5e1;
+      border-radius: 0 0 6px 6px;
+      padding: 14px;
+      outline: 0;
+      resize: vertical;
+      line-height: 1.6;
+      font-size: 14px;
+      color: #111827;
+      background: #fff;
+    }
+    .sub-editor {
+      min-height: 260px;
+      font-size: 13px;
+    }
+    .verify-footer {
+      max-width: 780px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      padding-bottom: 6px;
+    }
+    .ai-sidebar {
+      width: 190px;
+      background: #111c31;
+      color: #cbd5e1;
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .ai-title {
+      height: 50px;
+      border-bottom: 1px solid #243048;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .ai-list { flex: 1; overflow: auto; padding: 10px; }
+    .ai-item {
+      border: 1px solid #27334c;
+      border-radius: 7px;
+      padding: 11px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      color: #cbd5e1;
+      background: rgba(15, 23, 42, .35);
+    }
+    .ai-item.active { border-color: #8b5cf6; background: rgba(91, 33, 182, .35); box-shadow: inset 3px 0 0 #8b5cf6; }
+    .ai-item.disabled { cursor: not-allowed; opacity: .58; }
+    .ai-item strong { font-size: 12px; color: #fff; display: block; margin-bottom: 7px; }
+    .ai-meta-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 10px; color: #94a3b8; }
+    .ai-side-pill { color: #d8b4fe; border: 1px solid #7e22ce; background: rgba(88, 28, 135, .45); border-radius: 4px; padding: 2px 5px; font-weight: 800; }
+    .ai-state { font-weight: 900; white-space: nowrap; }
+    .ai-state.parsing { color: #94a3b8; }
+    .ai-state.done { color: #a78bfa; }
+    .ai-state.saved { color: #22c55e; }
+    .ai-foot { padding: 14px; font-size: 11px; color: #94a3b8; text-align: center; border-top: 1px solid #243048; }
+    .ai-main {
+      flex: 1;
+      min-width: 0;
+      overflow: auto;
+      padding: 24px 34px;
+      background: #f1f5f9;
+    }
+    .ai-wrap { max-width: 920px; margin: 0 auto; }
+    .notice-card {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #ede9fe;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .notice-card .left { display: flex; align-items: center; gap: 12px; }
+    .number-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 7px;
+      background: #f3e8ff;
+      color: #8b5cf6;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+    .section-card {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .section-title {
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 16px;
+    }
+    .section-title::before {
+      content: "";
+      width: 3px;
+      height: 14px;
+      border-radius: 999px;
+      background: #10b981;
+    }
+    
+    /* Config Header & Sub Tabs Styling */
+    .config-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .config-header .section-title {
+      margin-bottom: 0;
+    }
+    .pill-tabs {
+      display: flex;
+      background: #f1f5f9;
+      border-radius: 999px;
+      padding: 4px;
+      gap: 4px;
+    }
+    .pill-tab {
+      border: 0;
+      background: transparent;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 900;
+      padding: 6px 16px;
+      border-radius: 999px;
+      transition: .2s ease;
+    }
+    .pill-tab.active {
+      background: #8b5cf6;
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(139,92,246,.25);
+    }
+    
+    .ai-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .ai-grid label { display: block; font-size: 12px; color: #64748b; font-weight: 800; margin-bottom: 6px; }
+    .ai-grid input, .ai-grid select {
+      width: 100%;
+      height: 34px;
+      border: 1px solid #d8dee8;
+      border-radius: 5px;
+      padding: 0 10px;
+      font-size: 12px;
+      outline: 0;
+      background: #fff;
+    }
+    .answer-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .answer-row label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #64748b;
+    }
+    .inline-radios {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      min-height: 34px;
+      color: #475569;
+      font-size: 12px;
+    }
+    .inline-radios label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 82px;
+      height: 30px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      background: #fff;
+      padding: 0 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    /* Simple custom accent for radios */
+    input[type="radio"] {
+      accent-color: #22c55e;
+    }
+    .chapter-select-btn {
+      width: 100%;
+      height: 34px;
+      border: 1px solid #d8dee8;
+      border-radius: 5px;
+      background: #fff;
+      color: #111827;
+      padding: 0 10px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 800;
+    }
+    .required { color: #ef4444; margin-right: 3px; }
+    .modal-mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.38);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+      padding: 24px;
+    }
+    .modal-mask.show { display: flex; }
+    .modal {
+      width: min(420px, calc(100vw - 48px));
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 24px 60px rgba(15,23,42,.22);
+      border: 1px solid #e5e7eb;
+      overflow: hidden;
+    }
+    .modal-head {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      border-bottom: 1px solid #eef2f7;
+      font-size: 15px;
+      font-weight: 900;
+    }
+    .modal-body { padding: 18px; color: #475569; font-size: 13px; line-height: 1.7; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; padding: 0 18px 18px; }
+    .chapter-list { display: grid; gap: 8px; }
+    .chapter-option {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      background: #fff;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .chapter-option.active { border-color: #22c55e; background: #f0fdf4; color: #16a34a; }
+    .mini-danger {
+      border: 0;
+      color: #fff;
+      background: #ff5b5b;
+      border-radius: 4px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+      margin-left: 5px;
+    }
+    .tag-line { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .tag {
+      border: 1px solid #c4b5fd;
+      color: #7c3aed;
+      background: #f5f3ff;
+      border-radius: 5px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .bottom-row { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translateX(-50%) translateY(12px);
+      background: #111827;
+      color: #fff;
+      border-radius: 999px;
+      padding: 11px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      opacity: 0;
+      pointer-events: none;
+      transition: .2s ease;
+      z-index: 30;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    @media (max-width: 980px) {
+      body { overflow: auto; }
+      .app { height: auto; min-height: 100vh; overflow: visible; }
+      .upload-stage { min-height: 100vh; padding: 70px 18px 28px; }
+      .upload-card { padding: 38px 24px 30px; min-height: 0; }
+      .select-row { grid-template-columns: repeat(2, 1fr); }
+      .history-panel { width: min(350px, 92vw); }
+      .topbar { height: auto; min-height: 60px; gap: 12px; flex-wrap: wrap; padding: 10px 14px; }
+      .stepper { order: 3; width: 100%; justify-content: center; }
+      .panel { flex-direction: column; overflow: visible; }
+      .paper-pane { width: 100%; max-height: 420px; }
+      .ai-sidebar { width: 100%; flex-direction: row; overflow: auto; }
+      .ai-title, .ai-foot { display: none; }
+      .ai-list { display: flex; gap: 8px; padding: 10px; }
+      .ai-item { min-width: 130px; }
+      .cards-scroll, .ai-main { padding: 18px; }
+      .ai-grid, .answer-row { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ===== 本轮调整：切题框状态 / 星级难度 / 上传提示 / 校验底栏 ===== */
+    .block-hint { margin-left: auto; font-size: 11px; font-weight: 500; color: #94a3b8; }
+    .upload-tip { display: flex; align-items: center; gap: 6px; margin: 9px 0 0; font-size: 11px; color: #b45309; }
+    .upload-tip .icon-sm { color: #f59e0b; }
+    .upload-tip .lucide { width: 13px; height: 13px; }
+
+    .scan-card { position: relative; border-color: #e2e8f0; border-style: dashed; transition: .15s ease; }
+    .scan-card.verified { border-style: solid; border-color: #86efac; background: #f6fef9; }
+    .scan-card { border-left-width: 3px; }
+    .scan-card.verified { border-left-color: #22c55e; }
+    .scan-card.active { box-shadow: 0 0 0 2px rgba(34,197,94,.18); }
+
+    .stars { display: flex; align-items: center; gap: 2px; height: 36px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; }
+    .stars .star { border: 0; background: none; padding: 0 1px; font-size: 15px; line-height: 1; color: #d9e0e8; cursor: pointer; transition: .12s; }
+    .stars .star.on { color: #f59e0b; }
+    .stars .star:hover { color: #fbbf24; }
+    .stars .star-text { margin-left: 6px; font-size: 11px; font-weight: 700; color: #64748b; white-space: nowrap; }
+
+    .verify-count { font-size: 12px; font-weight: 700; color: #64748b; align-self: center; }
+    .stem-editor { min-height: 104px; }
+
+    .label-hint { margin-left: 8px; font-size: 11px; font-weight: 500; color: #94a3b8; }
+    .answer-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; }
+    .answer-row .option-item { display: flex; align-items: center; gap: 8px; border: 1px solid #e2e8f0; background: #fff; border-radius: 7px; padding: 5px 9px; font-size: 12px; color: #334155; }
+    .answer-row .option-item.is-correct { border-color: #86efac; background: #f0fdf4; }
+    .answer-row input[type="radio"] { accent-color: #22c55e; margin: 0; }
+    .opt-letter { font-weight: 800; color: #64748b; width: 13px; flex: 0 0 auto; }
+    .opt-text { flex: 1; min-width: 0; border: 0; background: transparent; font-size: 12px; color: #0f172a; outline: 0; padding: 4px 0; }
+    .answer-actions { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+    .answer-hint { font-size: 11px; color: #94a3b8; }
+    .step-tab.current { color: #fff; background: #10b981; }
+    .step-tab.available { color: #7c3aed; background: #f5f3ff; border-color: #ddd6fe; }
+    .scan-card::after { top: 3px; right: 3px; }
+
+    .capability-row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; justify-content: center; }
+    .capability-row span { font-size: 11px; font-weight: 700; color: #16a34a; background: #f0fdf4; border: 1px solid #dcfce7; border-radius: 999px; padding: 4px 10px; }
+    .is-parsing .upload-tip, .is-parsing .capability-row { display: none; }
+
+    /* ===== 常驻解析记录 + 上传页双栏 ===== */
+    .page-upload {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 356px;
+    }
+    .upload-stage { padding: 34px 26px; }
+    .history-panel.resident {
+      position: relative;
+      top: auto; right: auto; bottom: auto;
+      width: 356px;
+      height: 100%;
+      transform: none;
+      box-shadow: none;
+      z-index: 3;
+      border-left: 1px solid #e2e8f0;
+    }
+    .resident .history-head { height: 66px; padding: 0 18px; }
+    .resident .history-head h3 { font-size: 14px; gap: 7px; }
+    .resident .history-head .pill { font-weight: 800; }
+    .resident .history-filter {
+      grid-template-columns: minmax(0, 1fr) 104px;
+      gap: 8px;
+      padding: 12px 18px;
+    }
+    .resident .history-filter input,
+    .resident .history-filter select {
+      width: 100%;
+      height: 34px;
+      border: 1px solid #e2e8f0;
+      border-radius: 7px;
+      padding: 0 9px;
+      font-size: 12px;
+      color: #334155;
+      background: #fff;
+      outline: 0;
+    }
+    .resident .history-filter input:focus,
+    .resident .history-filter select:focus { border-color: #86efac; }
+    .resident .history-list { padding: 12px 14px; }
+    .resident .history-foot { height: 46px; font-size: 11px; color: #a3aebd; padding: 0 14px; text-align: center; }
+    .record-item {
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      margin-bottom: 10px;
+      min-height: 66px;
+      transition: .15s ease;
+      font: inherit;
+      color: inherit;
+    }
+    .record-item:hover { border-color: #bbf7d0; background: #f8fefb; }
+    .record-item.is-active { border-color: #86efac; box-shadow: 0 0 0 2px #f0fdf4 inset; }
+    .record-item .history-copy strong { font-size: 12px; }
+    .record-item .history-copy span { font-size: 10.5px; }
+    .record-item .pill { padding: 3px 7px; font-size: 10.5px; flex: 0 0 auto; }
+    .record-item .history-file-icon { width: 30px; height: 30px; }
+    .pill-red { color: #ef4444; background: #fff1f2; border: 1px solid #fecaca; }
+    .record-empty { padding: 40px 16px; text-align: center; color: #94a3b8; font-size: 12px; line-height: 1.9; }
+    .record-empty .lucide { width: 26px; height: 26px; display: block; margin: 0 auto 8px; color: #cbd5e1; }
+    .record-group { font-size: 10.5px; font-weight: 800; color: #94a3b8; letter-spacing: .5px; margin: 4px 0 8px 2px; }
+    @media (max-width: 1180px) {
+      .page-upload { grid-template-columns: minmax(0, 1fr); }
+      .history-panel.resident { width: 100%; border-left: 0; border-top: 1px solid #e2e8f0; max-height: 42vh; }
+      .upload-stage { padding: 28px 18px; }
+    }
+    .resident .history-foot { justify-content: space-between; gap: 8px; }
+    .record-clear { border: 0; background: none; color: #94a3b8; font-size: 11px; font-weight: 700; padding: 4px 6px; border-radius: 5px; cursor: pointer; }
+    .record-clear:hover { color: #ef4444; background: #fff1f2; }
+  </style>
+  <link rel="stylesheet" href="assets/refactor.css" />
+  <link rel="stylesheet" href="assets/share.css" />
+  <script src="assets/vendor/pdf.min.js"></script>
+  <script src="assets/vendor/mammoth.browser.min.js"></script>
+  <script src="assets/vendor/html2canvas.min.js"></script>
+</head>
+<body>
+  <div id="app" class="app">
+    <section id="uploadPage" class="page-upload">
+      <button id="uploadBackBtn" class="back-btn upload-back"><i data-lucide="chevron-left" class="icon-sm"></i>返回</button>
+      <div class="upload-stage">
+        <div class="upload-card">
+          <div class="upload-mark"><img src="assets/upload-illustration.png" alt="试卷智能解析" /></div>
+          <h1>试卷智能化解析</h1>
+          <p class="subtitle">系统将自动进行OCR识别、题目切分与结构化解析</p>
+          <div class="capability-row">
+            <span>OCR 识别</span><span>智能切题</span><span>AI 解析</span><span>一键上传</span>
+          </div>
+          <div class="form-block">
+            <div class="block-title"><span class="form-step">1</span>选择教材信息</div>
+            <div class="select-row">
+              <select id="subject"><option>数学</option><option>语文</option><option>英语</option><option>物理</option></select>
+              <select id="publisher"><option>辽宁师大出版社</option><option>人教版</option><option>北师大版</option><option>外研版</option></select>
+              <select id="grade"><option>一年级</option><option>二年级</option><option>三年级</option><option>高三</option></select>
+              <select id="term"><option>上册</option><option>下册</option><option>必修一</option><option>选修二</option></select>
+            </div>
+            <div class="block-title"><span class="form-step">2</span>上传试卷</div>
+            <label id="dropZone" class="drop-zone" for="fileInput">
+              <strong>点击上传或拖拽文件至此处</strong>
+              <p>支持 Word（DOCX）、PDF、PNG、JPG</p>
+              <p>Word / PDF 单文件 ≤100MB，PDF ≤30页 · 图片单张 ≤10MB，最多20张</p>
+            <p class="upload-tip"><i data-lucide="alert-circle" class="icon-sm"></i>注意：上传试卷如果存在水印，会影响解析效果。</p>
+            </label>
+            <input id="fileInput" type="file" accept=".docx,.pdf,.png,.jpg,.jpeg" multiple hidden />
+            <div id="fileConfirm" class="file-confirm">
+              <div class="confirm-title"><i data-lucide="check-circle-2" class="icon-sm"></i>待解析文件确认</div>
+              <div id="fileList" class="file-list"></div>
+            <p class="upload-tip"><i data-lucide="alert-circle" class="icon-sm"></i>注意：上传试卷如果存在水印，会影响解析效果。</p>
+              <div class="file-actions">
+                <button id="addMoreBtn" class="add-image-btn"><i data-lucide="plus" class="icon-sm"></i>继续添加</button>
+                <button id="resetBtn" class="btn btn-ghost">重新选择</button>
+                <button id="startParseBtn" class="btn btn-primary"><i data-lucide="play" class="icon-sm"></i>开始解析</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <aside class="history-panel resident" id="recordPanel">
+        <div class="history-head">
+          <h3><i data-lucide="rotate-ccw" class="icon-sm"></i>解析记录 <span class="pill pill-green" id="recordCount">0 条</span></h3>
+          <button id="recordRefresh" class="btn btn-ghost" style="padding:6px 8px" title="刷新解析记录"><i data-lucide="refresh-cw" class="icon-sm"></i></button>
+        </div>
+        <div class="history-filter">
+          <input id="recordSearch" placeholder="搜索文件名称" aria-label="搜索解析记录" />
+          <select id="recordFilter" aria-label="按状态筛选">
+            <option value="all">全部状态</option>
+            <option value="parsing">结构化解析中</option>
+            <option value="verify">待校验</option>
+            <option value="review">习题解析中</option>
+            <option value="ready">待上传</option>
+            <option value="uploaded">上传完毕</option>
+            <option value="failed">失败任务</option>
+          </select>
+        </div>
+        <div class="history-list" id="recordList"></div>
+        <div class="history-foot"><span id="recordFoot">任务保存在当前浏览器</span><button id="recordClear" class="record-clear">清空记录</button></div>
+      </aside>
+    </section>
+
+    <section id="workbenchPage" class="workbench hidden">
+      <header class="topbar">
+        <div class="top-left">
+          <button id="workbenchBackBtn" class="back-btn"><i data-lucide="chevron-left" class="icon-sm"></i>返回</button>
+          <div class="doc-brand">
+            <div class="doc-icon"><i data-lucide="file-text" class="icon"></i></div>
+            <div><strong id="docTitle">2024_高三数学压轴卷.pdf</strong><span>试卷智能识别与精审校验工作台</span></div>
+          </div>
+        </div>
+        <div class="stepper">
+          <button id="stepOneBtn" class="step-tab current"><span class="step-index">1</span>第一步：题干与题量校验</button>
+          <i data-lucide="chevron-right" class="icon-sm" style="color:#94a3b8"></i>
+          <button id="stepTwoBtn" class="step-tab available"><span class="step-index">2</span>第二步：AI智能解析与上传</button>
+        </div>
+        <button id="topAction" class="btn btn-purple"><i data-lucide="sparkles" class="icon-sm"></i>校验完毕</button>
+      </header>
+      
+      <main id="verifyPanel" class="panel">
+        <aside class="paper-pane">
+          <div class="paper-tabs"><strong>原卷预览</strong><span id="sourceMeta">原卷预览</span><span class="source-view-hint">原文件 · 连续预览</span></div>
+          <div class="paper-preview" id="sourcePreview"><div id="sourceDocument"></div></div>
+          <div id="sourceCaptureTools" class="source-capture-tools hidden"></div>
+          <div class="source-controls"><button id="downloadSource" class="btn btn-ghost">下载原文件</button><div class="zoom-controls"><button id="zoomOut" aria-label="缩小原卷">−</button><span id="sourceZoom">100%</span><button id="zoomIn" aria-label="放大原卷">＋</button><button id="zoomFit">适应宽度</button></div></div>
+        </aside>
+        <div id="paneSplitter" class="pane-splitter" role="separator" aria-orientation="vertical" aria-label="调整原卷和习题区域大小" aria-valuemin="25" aria-valuemax="70" aria-valuenow="44" tabindex="0"><span></span></div>
+        <section class="verify-main">
+          <div class="question-nav">
+            <div id="qDots" class="q-dots"><span>题号快速定位：</span></div><button id="addQuestion" class="btn btn-ghost">＋ 新增题目</button>
+          </div>
+          <div id="questionCards" class="cards-scroll"></div><div id="verifyActions" class="verify-footer"></div>
+        </section>
+      </main>
+
+      <main id="aiPanel" class="panel hidden">
+        <aside class="ai-sidebar">
+          <div class="ai-title"><span>题目分类导航</span><span class="pill pill-purple">AI模式</span></div>
+          <div id="aiList" class="ai-list"></div>
+          <div class="ai-foot">题目入库前校验</div>
+        </aside>
+        <section class="ai-main">
+          <div class="ai-wrap">
+            <div class="notice-card">
+              <div class="left">
+                <div id="aiNumber" class="number-box">1</div>
+                <div><strong id="aiHeading">当前编辑：第 1 题</strong><br /><span style="font-size:12px;color:#94a3b8">正在进行题目公共属性与AI大模型小问深度解析</span></div>
+              </div>
+              <button id="reanalyzeBtn" class="btn btn-purple"><i data-lucide="sparkles" class="icon-sm"></i>AI重新解析</button>
+            </div>
+            
+            <div class="section-card">
+              <div class="section-title">题目公共属性</div>
+              <div class="ai-grid">
+                <div><label>关联章节</label><button id="chapterBtn" class="chapter-select-btn"><span id="chapterText">请选择章节</span><i data-lucide="chevron-down" class="icon-sm"></i></button></div>
+                <div><label>难易度</label><div id="aiStars" class="stars" role="radiogroup" aria-label="难易度"></div></div>
+                <div><label>题目类型</label><select id="aiType"><option>选择题</option><option>填空题</option><option>解答题</option><option>阅读题</option></select></div>
+                <div><label>核心素养</label><select id="aiCompetency"><option>核心素养</option><option>逻辑推理</option><option>数学运算</option><option>空间观念</option><option>直观想象</option><option>数据分析</option><option>语言理解</option></select></div>
+              </div>
+            </div>
+
+            <div class="section-card" id="aiPublicStemCard" style="display: none;">
+              <div class="section-title">公共题干</div>
+              <div class="toolbar"><b>B</b><i>I</i><u>U</u><i data-lucide="align-left" class="icon-sm"></i><i data-lucide="align-center" class="icon-sm"></i><i data-lucide="image" class="icon-sm"></i></div>
+              <textarea id="aiPublicStem" class="editor sub-editor" style="min-height: 120px;"></textarea>
+            </div>
+
+            <div class="section-card">
+              <div class="config-header">
+                <div class="section-title" id="aiConfigTitle">习题解析配置与校验</div>
+                <div id="aiSubTabs" class="pill-tabs" style="display: none;">
+                  <button class="pill-tab active">第 (1) 问</button>
+                  <button class="pill-tab">第 (2) 问</button>
+                </div>
+              </div>
+              
+              <label class="field-label"><span class="required">*</span>展示形式</label>
+              <div class="inline-radios" style="margin-bottom: 12px;">
+                <label><input name="showType" type="radio" data-type="单选题" />单选题</label>
+                <label><input name="showType" type="radio" data-type="多选题" />多选题</label>
+                <label><input name="showType" type="radio" data-type="判断题" />判断题</label>
+                <label><input name="showType" type="radio" data-type="连线题" />连线题</label>
+                <label><input name="showType" type="radio" data-type="填空题" />填空题</label>
+                <label><input name="showType" type="radio" data-type="主观题" />主观题</label>
+              </div>
+
+              <div id="simplifyRow" style="display:none; margin-bottom: 12px;">
+                <label class="field-label"><span class="required">*</span>是否精简</label>
+                <div class="inline-radios">
+                  <label><input name="isSimplified" type="radio" />否</label>
+                  <label><input name="isSimplified" type="radio" checked />是</label>
+                </div>
+              </div>
+
+              <label class="field-label"><span class="required">*</span>题干</label>
+              <div class="toolbar"><b>B</b><i>I</i><u>U</u><i data-lucide="align-left" class="icon-sm"></i><i data-lucide="align-center" class="icon-sm"></i><i data-lucide="image" class="icon-sm"></i><i data-lucide="omega" class="icon-sm"></i><i data-lucide="undo-2" class="icon-sm"></i><i data-lucide="redo-2" class="icon-sm"></i><i data-lucide="eye" class="icon-sm"></i></div>
+              <textarea id="aiStem" class="editor sub-editor"></textarea>
+              
+              <div id="choiceBlock">
+                <label class="field-label">选项与答案 <span class="label-hint">勾选左侧圆点为正确答案</span></label>
+                <div id="answerRow" class="answer-row"></div>
+                <div class="answer-actions">
+                  <button id="addOptionBtn" class="btn btn-ghost" style="padding:7px 11px"><i data-lucide="plus" class="icon-sm"></i>增加干扰项</button>
+                  <span id="answerHint" class="answer-hint"></span>
+                </div>
+              </div>
+              <div id="answerTextWrap">
+                <label class="field-label">参考答案</label>
+                <textarea id="aiAnswer" class="editor" style="min-height:90px" placeholder="填写参考答案"></textarea>
+              </div>
+              
+              <label class="field-label">解析过程</label>
+              <div class="toolbar"><b>B</b><i>I</i><u>U</u><i data-lucide="align-left" class="icon-sm"></i><i data-lucide="undo-2" class="icon-sm"></i><i data-lucide="eye" class="icon-sm"></i></div>
+              <textarea id="aiAnalysis" class="editor sub-editor"></textarea>
+              
+              <label class="field-label"><span class="required">*</span>关联知识点</label>
+              <div id="tagLine" class="tag-line"></div>
+            </div>
+            
+            <div class="bottom-row">
+              <button id="prevAi" class="btn btn-ghost">上一题</button>
+              <button id="nextAi" class="btn btn-primary">保存并校验下一题</button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </section>
+    
+    <div id="toast" class="toast"><i data-lucide="check-circle-2" class="icon-sm"></i><span></span></div>
+    
+    <div id="confirmModal" class="modal-mask">
+      <div class="modal">
+        <div class="modal-head"><span>确认返回</span><button id="modalClose" class="btn btn-ghost" style="padding:6px 8px"><i data-lucide="x" class="icon-sm"></i></button></div>
+        <div class="modal-body">当前页面存在未保存的编辑内容，返回后这些调整可能不会保留。是否确认返回上一页？</div>
+        <div class="modal-actions">
+          <button id="modalCancel" class="btn btn-ghost">取消</button>
+          <button id="modalConfirm" class="btn btn-primary">确认返回</button>
+        </div>
+      </div>
+    </div>
+    
+    <div id="chapterModal" class="modal-mask">
+      <div class="modal">
+        <div class="modal-head"><span>选择关联章节</span><button id="chapterClose" class="btn btn-ghost" style="padding:6px 8px"><i data-lucide="x" class="icon-sm"></i></button></div>
+        <div class="modal-body">
+          <div id="chapterList" class="chapter-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = (s, root = document) => root.querySelector(s);
+    const $$ = (s, root = document) => Array.from(root.querySelectorAll(s));
+    const DIFFICULTY_LEVELS = ["★☆☆☆☆ (易)", "★★☆☆☆ (较易)", "★★★☆☆ (中等)", "★★★★☆ (较难)", "★★★★★ (难)"];
+
+    function renderStars(q) {
+      const wrap = $("#aiStars");
+      if (!wrap) return;
+      const idx = Math.max(0, DIFFICULTY_LEVELS.indexOf(q.difficulty));
+      wrap.innerHTML = DIFFICULTY_LEVELS.map((lv, i) =>
+        `<button type="button" class="star ${i <= idx ? "on" : ""}" data-level="${i}" role="radio" aria-checked="${i === idx}" title="${lv}" aria-label="${lv}">★</button>`
+      ).join("") + `<span class="star-text">${DIFFICULTY_LEVELS[idx]}</span>`;
+      $$(".star", wrap).forEach(btn => btn.addEventListener("click", () => {
+        const active = currentQuestion();
+        active.difficulty = DIFFICULTY_LEVELS[Number(btn.dataset.level)];
+        markDirty();
+        renderStars(active);
+      }));
+    }
+
+    const state = {
+      files: [],
+      uploadMode: "",
+      dirty: false,
+      step: 1,
+      activeQuestionId: 1,
+      parsedImages: [
+        { id: "img-a", name: "第1题集合区间图.png" },
+        { id: "img-b", name: "第2题对话插图.png" },
+        { id: "img-c", name: "第3题网格图.png" }
+      ],
+      chapters: ["第一章 数与代数", "第二章 图形与几何", "第二章 阅读理解", "第三章 统计与概率", "第四章 综合实践"],
+      questions: [
+        {
+          id: 1,
+          title: "第 1 题",
+          status: "待校验",
+          aiStatus: "解析完成",
+          count: "一题一问",
+          chapter: "第一章 数与代数",
+          stem: "已知集合 A = {x | x² - x - 2 < 0}, B = {x | -1 < x < 1}, 则 A ∩ B =？\nA. {x | -1 < x < 1}\nB. {x | 0 < x < 1}\nC. {x | 1 < x < 2}\nD. {x | -1 < x < 2}",
+          images: [],
+          showImages: false,
+          difficulty: "★★★☆☆ (中等)",
+          type: "选择题",
+          competency: "核心素养",
+          analysis: "解不等式 x² - x - 2 < 0，可得 -1 < x < 2，即 A = {x | -1 < x < 2}。又 B = {x | -1 < x < 1}，所以 A ∩ B = {x | -1 < x < 1}，答案选 A。",
+          tags: ["集合运算", "一元二次不等式"]
+        },
+        {
+          id: 2,
+          title: "第 2 题",
+          status: "待校验",
+          aiStatus: "解析完成",
+          count: "一题多问", // 标识一题多问
+          chapter: "第二章 阅读理解",
+          publicStem: "Dick 和 Lily 参观爷爷的小花园。阅读对话，完成下列任务。\nDick: This is my grandpa. He has a small garden.\nLily: Hi, Grandpa. Nice to meet you!\nGrandpa: Nice to meet you too.",
+          stem: "(1) Dick's grandpa has a _____.",
+          images: [],
+          showImages: false,
+          difficulty: "★★☆☆☆ (较易)",
+          type: "选择题",
+          competency: "语言理解",
+          analysis: "先定位对话中的 garden、apple trees、four green apples 等关键词，再根据题干空格语义完成匹配。第(1)问对应 small garden。",
+          tags: ["阅读理解", "关键信息提取"]
+        },
+        {
+          id: 3,
+          title: "第 3 题",
+          status: "待校验",
+          aiStatus: "解析完成",
+          count: "一题一问",
+          chapter: "第二章 图形与几何",
+          stem: "观察网格图，计算阴影部分面积，并写出推导过程。",
+          images: [],
+          showImages: false,
+          difficulty: "★★★☆☆ (中等)",
+          type: "解答题",
+          competency: "空间观念",
+          analysis: "将阴影区域拆分为规则矩形和三角形，分别计算面积后求和；也可以用外接矩形面积减去空白部分面积得到结果。",
+          tags: ["面积计算", "图形分割"]
+        }
+      ]
+    };
+
+    // 选项与答案（演示数据）
+    state.questions[0].options = ["{x|-1<x<1}", "{x|0<x<1}", "{x|1<x<2}", "{x|-1<x<2}"];
+    state.questions[0].correct = 0;
+    state.questions[0].answer = "";
+    state.questions[0].display = "单选题";
+    state.questions[1].options = ["garden", "zoo", "farm"];
+    state.questions[1].correct = 0;
+    state.questions[1].answer = "";
+    state.questions[1].display = "单选题";
+    state.questions[2].options = [];
+    state.questions[2].correct = 0;
+    state.questions[2].answer = "阴影部分面积 = 24 cm²（按网格 1cm × 1cm 计）";
+    state.questions[2].display = "主观题";
+
+    function renderOptions() {
+      const q = currentQuestion();
+      const row = $("#answerRow");
+      if (!row) return;
+      const isChoice = ["选择题", "判断题"].includes(q.type);
+      $("#choiceBlock").style.display = isChoice ? "block" : "none";
+      $("#answerTextWrap").style.display = isChoice ? "none" : "block";
+      $("#aiAnswer").value = q.answer || "";
+      if (!isChoice) return;
+      q.options = q.options || [];
+      const letters = i => String.fromCharCode(65 + i);
+      row.innerHTML = q.options.map((text, i) => `
+        <label class="option-item ${q.correct === i ? "is-correct" : ""}">
+          <input type="radio" name="answer" ${q.correct === i ? "checked" : ""} data-pick="${i}" aria-label="将 ${letters(i)} 设为正确答案" />
+          <span class="opt-letter">${letters(i)}</span>
+          <input class="opt-text" value="${String(text).replace(/"/g, "&quot;")}" data-text="${i}" aria-label="选项 ${letters(i)} 内容" />
+          <button class="mini-danger" data-del="${i}" ${q.options.length <= 2 ? "disabled" : ""}>删除</button>
+        </label>`).join("");
+      $$("[data-pick]", row).forEach(el => el.addEventListener("change", () => {
+        const cur = currentQuestion();
+        cur.correct = Number(el.dataset.pick);
+        markDirty();
+        renderOptions();
+      }));
+      $$(".opt-text", row).forEach(el => el.addEventListener("input", () => {
+        currentQuestion().options[Number(el.dataset.text)] = el.value;
+        markDirty();
+      }));
+      $$("[data-del]", row).forEach(el => el.addEventListener("click", e => {
+        e.preventDefault();
+        const cur = currentQuestion();
+        const i = Number(el.dataset.del);
+        if (cur.options.length <= 2) { toast("至少保留 2 个选项"); return; }
+        cur.options.splice(i, 1);
+        if (cur.correct === i) cur.correct = 0;
+        else if (cur.correct > i) cur.correct -= 1;
+        markDirty();
+        renderOptions();
+      }));
+      $("#answerHint").textContent = `共 ${q.options.length} 个选项 · 正确答案 ${letters(q.correct)}`;
+    }
+
+    // ---------- 解析记录（常驻面板） ----------
+    const questionTemplate = () => JSON.parse(JSON.stringify(state.questions));
+    state.tasks = [];
+    state.activeTaskId = null;
+
+    const pad2 = n => String(n).padStart(2, "0");
+    function formatWhen(ts) {
+      const d = new Date(ts), now = new Date();
+      const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      const hm = `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+      if (ts >= startToday) return `今天 ${hm}`;
+      if (ts >= startToday - 864e5) return `昨天 ${hm}`;
+      return `${d.getMonth() + 1}月${d.getDate()}日 ${hm}`;
+    }
+    const courseOf = t => `${t.course.subject} · ${t.course.grade} · ${t.course.term}`;
+    function taskStatusOf(t) {
+      if (t.stage === "parsing") return { key: "parsing", label: "结构化解析中", pill: "pill-purple" };
+      if (t.stage === "failed") return { key: "failed", label: "解析失败", pill: "pill-red" };
+      if (t.stage === "uploaded") return { key: "uploaded", label: "上传完毕", pill: "pill-green" };
+      if (t.questions.some(q => q.status === "待校验")) return { key: "verify", label: "待校验", pill: "pill-yellow" };
+      if (t.questions.every(q => q.status === "已保存")) return { key: "uploaded", label: "待上传", pill: "pill-green" };
+      return { key: "review", label: "习题解析中", pill: "pill-purple" };
+    }
+    function makeRecord({ name, type = "pdf", course, stage, age = 0, tweak }) {
+      const questions = questionTemplate();
+      if (tweak) tweak(questions);
+      return {
+        id: `t${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+        name, type, course, stage,
+        pages: type === "image" ? 3 : 2,
+        createdAt: Date.now() - age,
+        updatedAt: Date.now() - age,
+        step: 1,
+        activeId: questions[0].id,
+        questions
+      };
+    }
+    const STORE_KEY = "paper-parse-demo-v1";
+    function persistRecords() {
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify({ tasks: state.tasks, activeTaskId: state.activeTaskId }));
+      } catch (err) { /* 存储不可用时降级为内存态 */ }
+    }
+    function loadRecords() {
+      try {
+        const raw = localStorage.getItem(STORE_KEY);
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        if (!Array.isArray(data.tasks)) return false;
+        state.tasks = data.tasks;
+        state.activeTaskId = data.activeTaskId || null;
+        // 刷新后无后台解析线程：未完成的解析任务回落到「待校验」
+        state.tasks.forEach(t => { if (t.stage === "parsing" && !t.readyAt) t.readyAt = Date.now() + 4000; });
+        return true;
+      } catch (err) { return false; }
+    }
+    (function seedRecords() {
+      if (loadRecords()) return;
+      const base = { subject: "数学", publisher: "人教版", grade: "高二", term: "下册" };
+      state.tasks.push(makeRecord({
+        name: "2025年春季高二理科数学期末卷.pdf", course: base, stage: "verify", age: 2 * 36e5
+      }));
+      state.tasks.push(makeRecord({
+        name: "物理错题本扫描（3张图片）.png", type: "image", stage: "uploaded", age: 26 * 36e5,
+        course: { subject: "物理", publisher: "人教版", grade: "八年级", term: "上册" },
+        tweak: qs => qs.forEach(q => { q.status = "已保存"; q.aiStatus = "已保存"; })
+      }));
+      state.tasks.push(makeRecord({
+        name: "2025年高三数学压轴卷.pdf", stage: "failed", age: 3 * 864e5,
+        course: { subject: "数学", publisher: "人教版", grade: "高三", term: "下册" }
+      }));
+    })();
+
+    function renderRecords() {
+      const list = $("#recordList");
+      if (!list) return;
+      const kw = ($("#recordSearch").value || "").trim().toLowerCase();
+      const filter = $("#recordFilter").value || "all";
+      const items = state.tasks.filter(t => {
+        const st = taskStatusOf(t);
+        const hitKw = !kw || t.name.toLowerCase().includes(kw);
+        const hitFilter = filter === "all" || st.key === filter;
+        return hitKw && hitFilter;
+      });
+      $("#recordCount").textContent = `${state.tasks.length} 条`;
+      list.innerHTML = items.length
+        ? items.map(t => {
+            const st = taskStatusOf(t);
+            return `<button class="history-item record-item ${t.id === state.activeTaskId ? "is-active" : ""}" data-record="${t.id}">
+              <div class="history-file-icon"><i data-lucide="${t.type === "image" ? "image" : "file-text"}" class="icon-sm"></i></div>
+              <div class="history-copy"><strong title="${escapeHTML(t.name)}">${escapeHTML(t.name)}</strong><span>${courseOf(t)} · ${formatWhen(t.createdAt)}</span></div>
+              <span class="pill ${st.pill}">${st.label}</span>
+            </button>`;
+          }).join("")
+        : `<div class="record-empty"><i data-lucide="folder-open" class="icon-sm"></i>${state.tasks.length ? "没有符合条件的记录，可调整筛选条件" : "暂无解析记录，上传试卷后会自动生成"}</div>`;
+      $$("[data-record]", list).forEach(el => el.addEventListener("click", () => openRecord(el.dataset.record)));
+      persistRecords();
+      iconRefresh();
+    }
+
+    function openRecord(id) {
+      const t = state.tasks.find(item => item.id === id);
+      if (!t) return;
+      if (t.stage === "parsing") { toast("该记录正在结构化解析中，请稍候"); return; }
+      if (t.stage === "failed") { toast("该记录解析失败，请重新上传该试卷"); return; }
+      state.activeTaskId = t.id;
+      state.questions = t.questions;
+      state.activeQuestionId = t.activeId || t.questions[0].id;
+      state.dirty = false;
+      $("#docTitle").textContent = t.name;
+      $("#uploadPage").classList.add("hidden");
+      $("#workbenchPage").classList.remove("hidden");
+      $("#verifyPanel").classList.toggle("hidden", false);
+      setStep(t.stage === "uploaded" ? 2 : (t.step || 1));
+      renderRecords();
+      iconRefresh();
+      toast(`已打开：${t.name}`);
+    }
+
+    function iconRefresh() {
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function toast(message) {
+      const t = $("#toast");
+      $("span", t).textContent = message;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 1800);
+    }
+
+    function fileSize(size) {
+      if (!size) return "0.59 MB";
+      return size > 1024 * 1024 ? `${(size / 1024 / 1024).toFixed(2)} MB` : `${(size / 1024).toFixed(0)} KB`;
+    }
+
+    function currentQuestion() {
+      return state.questions.find(q => q.id === state.activeQuestionId) || state.questions[0];
+    }
+
+    function markDirty() {
+      state.dirty = true;
+    }
+
+    // (文件上传与校验步骤的逻辑保持不变)
+    function isPdf(file) { return file.type === "application/pdf" || /\.pdf$/i.test(file.name); }
+    function isImage(file) { return file.type.startsWith("image/") || /\.(png|jpe?g)$/i.test(file.name); }
+    function setFileInputMode(mode) {
+      const input = $("#fileInput");
+      if (mode === "image") { input.accept = ".png,.jpg,.jpeg"; input.multiple = true; } 
+      else if (mode === "pdf") { input.accept = ".pdf"; input.multiple = false; } 
+      else { input.accept = ".pdf,.png,.jpg,.jpeg"; input.multiple = true; }
+    }
+    
+    function addFiles(files) {
+      const incoming = Array.from(files).filter(file => isPdf(file) || isImage(file));
+      if (!incoming.length) { toast("仅支持上传 PDF、PNG、JPG 文件"); return; }
+      const hasPdf = incoming.some(isPdf);
+      const hasImage = incoming.some(isImage);
+      if (hasPdf && hasImage) { toast("不能同时上传 PDF 和图片，请重新选择"); return; }
+      if (state.uploadMode === "pdf") { toast("已选择 PDF，不能继续添加文件"); return; }
+      if (state.uploadMode === "image" && hasPdf) { toast("已添加图片时不支持继续添加 PDF"); return; }
+      if (hasPdf) {
+        if (incoming.filter(isPdf).length > 1) toast("PDF 仅支持上传 1 个，已保留第一个");
+        state.files = [incoming.find(isPdf)];
+        state.uploadMode = "pdf";
+      } else {
+        const remain = Math.max(0, 20 - state.files.length);
+        state.files = [...state.files, ...incoming.filter(isImage).slice(0, remain)];
+        state.uploadMode = "image";
+        if (incoming.length > remain) toast("图片最多支持 20 张");
+      }
+      markDirty();
+      renderFiles();
+    }
+
+    function statusClass(status) {
+      if (status === "已保存" || status === "已校验") return "pill pill-green";
+      return "pill pill-yellow";
+    }
+
+    function allQuestionsVerified() {
+      return state.questions.every(q => q.status === "已校验" || q.status === "已保存");
+    }
+
+    function aiStateClass(status) {
+      if (status === "已保存") return "saved";
+      if (status === "解析中") return "parsing";
+      return "done";
+    }
+
+    function setActiveQuestion(id) {
+      const target = state.questions.find(q => q.id === Number(id));
+      if (state.step === 2 && target?.aiStatus === "解析中") {
+        toast("该题正在解析中，暂不能查看和编辑");
+        return;
+      }
+      state.activeQuestionId = Number(id);
+      renderVerify();
+      renderAi();
+    }
+
+    function renderFiles() {
+      const box = $("#fileConfirm");
+      const list = $("#fileList");
+      list.innerHTML = "";
+      if (!state.files.length) {
+        box.classList.remove("show");
+        $("#dropZone").style.display = "flex";
+        $("#addMoreBtn").classList.remove("hidden");
+        state.uploadMode = "";
+        setFileInputMode("");
+        return;
+      }
+      box.classList.add("show");
+      $("#dropZone").style.display = "none";
+      $("#addMoreBtn").classList.toggle("hidden", state.uploadMode === "pdf");
+      setFileInputMode(state.uploadMode);
+      state.files.forEach((file, index) => {
+        const row = document.createElement("div");
+        row.className = "file-item";
+        row.innerHTML = `
+          <i data-lucide="${file.type && file.type.includes("image") ? "image" : "file-text"}" class="icon-sm" style="color:#22c55e"></i>
+          <div class="file-name"><div class="file-title">${escapeHTML(file.name)}</div><div class="file-size">${fileSize(file.size)}</div></div>
+          <button class="btn btn-danger" style="padding:5px 7px" title="删除文件"><i data-lucide="trash-2" class="icon-sm"></i></button>
+        `;
+        $("button", row).addEventListener("click", () => {
+          state.files.splice(index, 1);
+          if (!state.files.length) state.uploadMode = "";
+          markDirty();
+          renderFiles();
+        });
+        list.appendChild(row);
+      });
+      iconRefresh();
+    }
+
+    function syncTopAction() {
+      const btn = $("#topAction");
+      if (!btn) return;
+      if (state.step === 1) {
+        btn.disabled = !allQuestionsVerified();
+        btn.title = btn.disabled ? "还有题目未校验，全部完成后可启动解析" : "全部题目已校验";
+      } else {
+        btn.disabled = false;
+        btn.title = "";
+      }
+    }
+
+    function renderAi() {
+      const q = currentQuestion();
+      $("#aiList").innerHTML = "";
+      state.questions.forEach(item => {
+        const node = document.createElement("div");
+        const status = item.aiStatus || "解析完成";
+        node.className = `ai-item ${item.id === state.activeQuestionId ? "active" : ""} ${status === "解析中" ? "disabled" : ""}`;
+        node.innerHTML = `
+          <strong>${item.title}</strong>
+          <div class="ai-meta-row"><span>${item.type}</span><span class="ai-side-pill">${item.count}</span></div>
+          <div class="ai-meta-row" style="margin-top:6px"><span>${item.chapter || "关联章节"}</span><span class="ai-state ${aiStateClass(status)}">● ${status}</span></div>
+        `;
+        node.addEventListener("click", () => setActiveQuestion(item.id));
+        $("#aiList").appendChild(node);
+      });
+      
+      $("#aiNumber").textContent = q.id;
+      $("#aiHeading").textContent = `当前编辑：${q.title}`;
+      $("#chapterText").textContent = q.chapter || "请选择章节";
+      renderStars(q);
+      $("#aiType").value = q.type;
+      $("#aiCompetency").value = q.competency;
+      $$('input[name="showType"]').forEach(el => { el.checked = el.dataset.type === (q.display || "单选题"); });
+      renderOptions();
+      const isLast = state.questions.findIndex(item => item.id === q.id) === state.questions.length - 1;
+      $("#nextAi").innerHTML = `<i data-lucide="${isLast ? "upload-cloud" : "check"}" class="icon-sm"></i>${isLast ? "保存并上传" : "保存并校验下一题"}`;
+      
+      // 处理一题多问不同的展示逻辑
+      if (q.count === "一题多问") {
+        $("#aiPublicStemCard").style.display = "block";
+        $("#aiSubTabs").style.display = "flex";
+        $("#simplifyRow").style.display = "block";
+        $("#aiConfigTitle").textContent = "习题解析配置与校验";
+        $("#aiPublicStem").value = q.publicStem || "";
+        $("#aiStem").value = q.stem || "";
+      } else {
+        $("#aiPublicStemCard").style.display = "none";
+        $("#aiSubTabs").style.display = "none";
+        $("#simplifyRow").style.display = "none";
+        $("#aiConfigTitle").textContent = "习题解析配置与校验";
+        $("#aiStem").value = q.stem;
+      }
+      
+      $("#aiAnalysis").value = q.analysis;
+      
+      $("#tagLine").innerHTML = "";
+      q.tags.forEach(tag => {
+        const span = document.createElement("span");
+        span.className = "tag";
+        span.textContent = tag;
+        $("#tagLine").appendChild(span);
+      });
+      const add = document.createElement("button");
+      add.className = "btn btn-primary";
+      add.style.padding = "7px 11px";
+      add.innerHTML = `<i data-lucide="plus" class="icon-sm"></i>添加`;
+      add.addEventListener("click", () => { q.tags.push("新增考点"); renderAi(); });
+      $("#tagLine").appendChild(add);
+      
+      iconRefresh();
+    }
+
+    function moveQuestion(offset) {
+      const idx = state.questions.findIndex(q => q.id === state.activeQuestionId);
+      const next = Math.max(0, Math.min(state.questions.length - 1, idx + offset));
+      if (state.step === 2 && state.questions[next]?.aiStatus === "解析中") {
+        toast("下一题仍在解析中，暂不能查看和编辑"); return;
+      }
+      state.activeQuestionId = state.questions[next].id;
+      renderVerify();
+      renderAi();
+      const el = $(`#question-${state.activeQuestionId}`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    function setStep(step) {
+      state.step = step;
+      $("#verifyPanel").classList.toggle("hidden", step !== 1);
+      $("#aiPanel").classList.toggle("hidden", step !== 2);
+      $("#stepOneBtn").className = `step-tab ${step === 1 ? "current" : "available"}`;
+      $("#stepTwoBtn").className = `step-tab ${step === 2 ? "current" : "available"}`;
+      $("#topAction").className = `btn ${step === 1 ? "btn-purple" : "btn-primary"}`;
+      $("#topAction").innerHTML = step === 1
+        ? `<i data-lucide="sparkles" class="icon-sm"></i>校验完毕`
+        : `<i data-lucide="upload-cloud" class="icon-sm"></i>上传全部题目至题库`;
+      if (step === 1) renderVerify();
+      if (step === 2) renderAi();
+      syncTopAction();
+      iconRefresh();
+    }
+
+    function requestBack(action) {
+      if (state.dirty) { state.pendingBack = action; $("#confirmModal").classList.add("show"); return; }
+      doBack(action);
+    }
+    function closeConfirmModal() { $("#confirmModal").classList.remove("show"); state.pendingBack = ""; }
+    
+    function doBack(action) {
+      if (action === "workbench") {
+        const current = state.tasks.find(item => item.id === state.activeTaskId);
+        if (current) {
+          current.step = state.step;
+          current.activeId = state.activeQuestionId;
+          current.updatedAt = Date.now();
+        }
+        $("#workbenchPage").classList.add("hidden");
+        $("#uploadPage").classList.remove("hidden");
+        $("#uploadPage").classList.remove("is-parsing");
+        renderFiles();
+        renderRecords();
+        iconRefresh();
+        toast("已返回上传页面");
+        return;
+      }
+      if (window.history.length > 1) { window.history.back(); } else { toast("已返回上一页"); }
+    }
+
+    function openChapterModal() {
+      const q = currentQuestion();
+      const list = $("#chapterList");
+      list.innerHTML = "";
+      state.chapters.forEach(chapter => {
+        const button = document.createElement("button");
+        button.className = `chapter-option ${q.chapter === chapter ? "active" : ""}`;
+        button.innerHTML = `<span>${chapter}</span>${q.chapter === chapter ? `<i data-lucide="check" class="icon-sm"></i>` : ""}`;
+        button.addEventListener("click", () => { q.chapter = chapter; markDirty(); closeChapterModal(); renderAi(); });
+        list.appendChild(button);
+      });
+      $("#chapterModal").classList.add("show");
+      iconRefresh();
+    }
+    function closeChapterModal() { $("#chapterModal").classList.remove("show"); }
+
+    function wireEvents() {
+      $("#uploadBackBtn").addEventListener("click", () => requestBack("upload"));
+      $("#workbenchBackBtn").addEventListener("click", () => requestBack("workbench"));
+      $("#modalCancel").addEventListener("click", closeConfirmModal);
+      $("#modalClose").addEventListener("click", closeConfirmModal);
+      $("#modalConfirm").addEventListener("click", () => {
+        const action = state.pendingBack;
+        closeConfirmModal();
+        state.dirty = false;
+        doBack(action);
+      });
+      $("#dropZone").addEventListener("dragover", e => { e.preventDefault(); $("#dropZone").classList.add("is-drag"); });
+      $("#dropZone").addEventListener("dragleave", () => $("#dropZone").classList.remove("is-drag"));
+      $("#dropZone").addEventListener("drop", e => {
+        e.preventDefault();
+        $("#dropZone").classList.remove("is-drag");
+        addFiles(e.dataTransfer.files);
+      });
+      $("#fileInput").addEventListener("change", e => { addFiles(e.target.files); e.target.value = ""; });
+      $("#addMoreBtn").addEventListener("click", () => $("#fileInput").click());
+      $("#resetBtn").addEventListener("click", () => {
+        state.files = []; state.uploadMode = ""; markDirty();
+        $("#uploadPage").classList.remove("is-parsing");
+        renderFiles();
+      });
+      $("#startParseBtn").addEventListener("click", () => beginParse());
+      
+      $("#stepOneBtn").addEventListener("click", () => setStep(1));
+      $("#stepTwoBtn").addEventListener("click", () => toast("请点击右上角“校验完毕”进入第二步"));
+      $("#topAction").addEventListener("click", () => {
+        if (state.step === 1) {
+          if (!allQuestionsVerified()) { toast("请先完成所有题目的校验"); return; }
+          state.questions.forEach(q => { if (!q.aiStatus || q.aiStatus === "解析中") return; q.aiStatus = "解析完成"; });
+          setStep(2);
+          renderAi();
+          toast("AI解析已生成，可继续校验并上传");
+        } else {
+          const unsaved = state.questions.filter(item => item.status !== "已保存");
+          if (unsaved.length) {
+            toast(`还有 ${unsaved.length} 道题未保存，请逐题保存后再上传`);
+            setActiveQuestion(unsaved[0].id);
+            return;
+          }
+          const current = state.tasks.find(item => item.id === state.activeTaskId);
+          if (current) { current.stage = "uploaded"; current.step = 2; current.updatedAt = Date.now(); }
+          state.files = [];
+          state.uploadMode = "";
+          toast(`已上传 ${state.questions.length} 道题至题库`);
+          renderRecords();
+          doBack("workbench");
+        }
+      });
+      
+      $("#reanalyzeBtn").addEventListener("click", () => {
+        const q = currentQuestion();
+        q.analysis = "【AI二次精修解析】重新梳理题干条件，先提取核心变量与限制范围，再按题型选择最短推导路径，最后给出答案与易错点提示。";
+        if (!q.tags.includes("AI精修")) q.tags.push("AI精修");
+        markDirty(); renderAi(); toast("当前题解析已重新生成");
+      });
+      
+      $("#chapterBtn").addEventListener("click", openChapterModal);
+      $("#chapterClose").addEventListener("click", closeChapterModal);
+      
+      // Editor Events
+      $("#aiPublicStem").addEventListener("input", e => { currentQuestion().publicStem = e.target.value; markDirty(); });
+      $("#aiStem").addEventListener("input", e => { currentQuestion().stem = e.target.value; markDirty(); });
+      $("#aiAnalysis").addEventListener("input", e => { currentQuestion().analysis = e.target.value; markDirty(); });
+      $("#aiDifficulty")?.addEventListener("change", e => { currentQuestion().difficulty = e.target.value; markDirty(); });
+      $("#aiType").addEventListener("change", e => {
+        const q = currentQuestion();
+        q.type = e.target.value;
+        if (q.type === "选择题") {
+          q.display = q.display || "单选题";
+          if ((q.options || []).length < 2) q.options = ["选项 A", "选项 B", "选项 C", "选项 D"];
+        }
+        if (q.type === "解答题") q.display = "主观题";
+        markDirty();
+        renderAi();
+      });
+      $$('input[name="showType"]').forEach(el => el.addEventListener("change", () => {
+        const q = currentQuestion();
+        q.display = el.dataset.type;
+        q.type = ["单选题", "多选题", "判断题"].includes(q.display) ? "选择题" : (q.display === "主观题" ? "解答题" : q.display);
+        if (q.display === "判断题") q.options = ["正确", "错误"];
+        else if (["单选题", "多选题"].includes(q.display) && (q.options || []).length < 2)
+          q.options = ["选项 A", "选项 B", "选项 C", "选项 D"];
+        markDirty();
+        renderAi();
+      }));
+      $("#addOptionBtn").addEventListener("click", () => {
+        const q = currentQuestion();
+        q.options = q.options || [];
+        if (q.options.length >= 8) { toast("最多支持 8 个选项"); return; }
+        q.options.push(`选项 ${String.fromCharCode(65 + q.options.length)}`);
+        markDirty();
+        renderOptions();
+        iconRefresh();
+      });
+      $("#aiAnswer").addEventListener("input", e => { currentQuestion().answer = e.target.value; markDirty(); });
+      $("#aiCompetency").addEventListener("change", e => { currentQuestion().competency = e.target.value; markDirty(); });
+      
+      $("#prevAi").addEventListener("click", () => moveQuestion(-1));
+      $("#nextAi").addEventListener("click", () => {
+        currentQuestion().status = "已保存";
+        currentQuestion().aiStatus = "已保存";
+        state.dirty = false;
+        renderAi(); renderVerify();
+        const idx = state.questions.findIndex(q => q.id === state.activeQuestionId);
+        if (idx === state.questions.length - 1) {
+          const unsaved = state.questions.find(q => q.status !== "已保存");
+          if (unsaved) { setActiveQuestion(unsaved.id); toast("请先保存其余题目，再上传全部题目"); return; }
+          const current = state.tasks.find(item => item.id === state.activeTaskId);
+          if (current) { current.stage = "uploaded"; current.step = 2; current.updatedAt = Date.now(); }
+          state.files = [];
+          state.uploadMode = "";
+          toast(`已上传 ${state.questions.length} 道题至题库`);
+          renderRecords();
+          doBack("workbench");
+        } else moveQuestion(1);
+      });
+    }
+
+    $("#recordSearch").addEventListener("input", renderRecords);
+    $("#recordFilter").addEventListener("change", renderRecords);
+    $("#recordRefresh").addEventListener("click", () => { renderRecords(); toast("解析记录已刷新"); });
+    $("#recordClear").addEventListener("click", () => {
+      state.tasks = state.tasks.filter(t => ['parsing','deep'].includes(t.stage));
+      if (!state.tasks.some(t => t.id === state.activeTaskId)) state.activeTaskId = null;
+      try { localStorage.removeItem(STORE_KEY); } catch (err) {}
+      renderRecords();
+      toast("已清空已结束记录，进行中的任务已保留");
+    });
+
+  </script>
+  <script src="assets/refactor.js"></script>
+  <script src="assets/workflow-v8.js"></script>
+  <script>
+    wireEvents();
+    renderFiles();
+    renderRecords();
+    iconRefresh();
+  </script>
+</body>
+</html>
